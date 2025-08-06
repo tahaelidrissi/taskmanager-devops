@@ -8,15 +8,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tahaelidrissi/taskmanagerapi.git"
+    "url": "git+https://github.com/tahaelidrissi/taskmanager-api.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/tahaelidrissi/taskmanagerapi/issues"
+    "url": "https://github.com/tahaelidrissi/taskmanager-api/issues"
   },
-  "homepage": "https://github.com/tahaelidrissi/taskmanagerapi#readme",
+  "homepage": "https://github.com/tahaelidrissi/taskmanager-api#readme",
   "devDependencies": {
     "dotenv-cli": "^8.0.0",
     "serverless-dotenv-plugin": "^6.0.0",
