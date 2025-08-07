@@ -10,17 +10,11 @@ services:
       - "--providers.docker.swarmMode=true"
       - "--providers.docker.network=public"
       - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.default.acme.email=tahaidrissi0525@gmail.com"
-      - "--certificatesresolvers.default.acme.storage=/etc/traefik/acme.json"
-      - "--certificatesresolvers.default.acme.tlschallenge=true"
     ports:
       - 80:80
-      - 443:443
       - 8080:8080
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./acme.json:/etc/traefik/acme.json
     networks:
       - public
     deploy:
@@ -34,18 +28,10 @@ services:
         - "traefik.docker.network=public"
         - "traefik.http.routers.traefik.rule=Host(`traefik.tahaidrissi.digital`)"
         - "traefik.http.routers.traefik.entrypoints=web"
-        - "traefik.http.routers.traefik.tls.certresolver=default"
         - "traefik.http.routers.traefik.service=api@internal"
         - "traefik.http.routers.traefik.middlewares=authtraefik"
         - "traefik.http.middlewares.authtraefik.basicauth.users=admin:{SHA}OwBKxtimAmgfXuNYfJJIVWeeIdk="
         - "traefik.http.services.traefik.loadbalancer.server.port=8080"
-
-
-        # Redirect HTTP → HTTPS globally
-        - "traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`)"
-        - "traefik.http.routers.http-catchall.entrypoints=web"
-        - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
-        - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
 
 networks:
   public:
