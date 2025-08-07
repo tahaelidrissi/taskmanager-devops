@@ -10,6 +10,7 @@ services:
       - "--providers.docker.swarmMode=true"
       - "--providers.docker.network=public"
       - "--entrypoints.web.address=:80"
+      - "--entrypoints.web-dashboard.address=:8080"
     ports:
       - 80:80
       - 8080:8080
@@ -26,13 +27,12 @@ services:
         # Expose dashboard securely
         - "traefik.enable=true"
         - "traefik.docker.network=public"
-        - "traefik.http.routers.traefik.rule=Host(`traefik.tahaidrissi.digital`)"
-        - "traefik.http.routers.traefik.entrypoints=web"
+        - "traefik.http.routers.traefik.rule=Host(`traefik.tahaidrissi.digital`) && PathPrefix(`/dashboard`)"
+        - "traefik.http.routers.traefik.entrypoints=web,web-dashboard"
         - "traefik.http.routers.traefik.service=api@internal"
         - "traefik.http.routers.traefik.middlewares=authtraefik"
         - "traefik.http.middlewares.authtraefik.basicauth.users=admin:{SHA}OwBKxtimAmgfXuNYfJJIVWeeIdk="
         - "traefik.http.services.traefik.loadbalancer.server.port=8080"
-
 networks:
   public:
     external: true
