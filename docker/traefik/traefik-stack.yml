@@ -1,25 +1,62 @@
-version: "3.9"
+version: "3.8"
 
 services:
   traefik:
-    image: traefik:v3.1.5
+    image: traefik:v2.11
+    command:
+      # Dashboard via router (pas d'api.insecure)
+      - --api.dashboard=true
+
+      # Provider Docker (mode Swarm)
+      - --providers.docker=true
+      - --providers.docker.swarmMode=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=public
+
+      # Entrypoints
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+
+      # ACME (Let's Encrypt) - HTTP-01 (souvent plus simple sur PWD)
+      - --certificatesresolvers.default.acme.email=tahaidrissi0525@gmail.com
+      - --certificatesresolvers.default.acme.storage=/etc/traefik/acme.json
+      - --certificatesresolvers.default.acme.httpchallenge=true
+      - --certificatesresolvers.default.acme.httpchallenge.entrypoint=web
+      # Si tu veux tester TLS-ALPN-01 à la place :
+      # - --certificatesresolvers.default.acme.tlschallenge=true
+
     ports:
-      - "80:80"
-      - "8080:8080"
-      - "443:443"
+      - 80:80
+      - 443:443
+      - 8080:8080  # dashboard (derrière basic-auth)
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./traefik.yml:/etc/traefik/traefik.yml
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./acme.json:/etc/traefik/acme.json
     networks:
       - public
     deploy:
-      replicas: 1
       placement:
         constraints:
           - node.role == manager
+      replicas: 1
       restart_policy:
-        condition: unless-stopped
+        condition: on-failure
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=public
 
+        # Redirect global HTTP -> HTTPS
+        - traefik.http.routers.http-catchall.rule=HostRegexp(`{host:.+}`)
+        - traefik.http.routers.http-catchall.entrypoints=web
+        - traefik.http.routers.http-catchall.middlewares=redirect-to-https
+        - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
+
+        # Dashboard sécurisé par basic-auth, exposé sur traefik.tahaidrissi.digital
+        - traefik.http.routers.traefik.rule=Host(`traefik.tahaidrissi.digital`)
+        - traefik.http.routers.traefik.entrypoints=websecure
+        - traefik.http.routers.traefik.tls=true
+        - traefik.http.routers.traefik.tls.certresolver=default
+        - traefik.http.routers.traefik.service=api@internal
 networks:
   public:
     external: true
