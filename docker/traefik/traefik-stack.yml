@@ -2,36 +2,24 @@ version: "3.9"
 
 services:
   traefik:
-    image: traefik:v2.11
-    command:
-      - --api.dashboard=true
-      - --providers.docker=true
-      - --providers.docker.exposedbydefault=false
-      - --providers.docker.swarmMode=true
-      - --providers.docker.network=public
-      - --entrypoints.web.address=:80
-      - --entrypoints.web-dashboard.address=:8080
+    image: traefik:v3.1.5
     ports:
-      - 80:80
-      - 8080:8080
+      - "80:80"
+      - "8080:8080"
+      - "443:443"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    networks: [public]
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik.yml:/etc/traefik/traefik.yml
+    networks:
+      - public
     deploy:
       replicas: 1
       placement:
         constraints:
           - node.role == manager
-      labels:
-        - traefik.enable=true
-        - traefik.docker.network=public
-        # Règle SANS Host() puisque tu écoutes déjà sur :8080
-        - traefik.http.routers.dashboard.rule=PathPrefix(`/dashboard`)
-        - traefik.http.routers.dashboard.entrypoints=web-dashboard
-        - traefik.http.routers.dashboard.service=api@internal
-        - traefik.http.routers.dashboard.middlewares=authtraefik
-        # Astuce : préfère bcrypt plutôt que SHA (plus sûr)
-        - traefik.http.middlewares.authtraefik.basicauth.users=admin:{bcrypt}$2y$05$abcdefghijklmnopqrstuvABCD1234567890abcdEFGHijklmno
+      restart_policy:
+        condition: unless-stopped
+
 networks:
   public:
     external: true
