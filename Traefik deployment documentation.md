@@ -15,7 +15,7 @@ Set up a **FastAPI** API behind **Traefik** on a Docker Swarm cluster hosted on 
   - `traefik.tahaidrissi.digital` → `<PWD_PUBLIC_IP>`
 
 ![Sequence Diagram](Images/ifconfig.me.png)
-![NamecheapScreen](Images/namecheapcofnig.png)
+![NamecheapScreen](Images/namecheapconfig.png)
 
 ---
 
