@@ -14,19 +14,26 @@ Set up a **FastAPI** API behind **Traefik** on a Docker Swarm cluster hosted on 
   - `admin.tahaidrissi.digital` → `<PWD_PUBLIC_IP>`
   - `traefik.tahaidrissi.digital` → `<PWD_PUBLIC_IP>`
 
+![Sequence Diagram](Images\ifconfig.me.png)
+![NamecheapScreen](Images\namecheapcofnig.png)
+
 ---
 
 ## 3. 📜 Deployment Steps
 
 ### 1) Initialize Docker Swarm
 ```bash
-docker swarm init --advertise -addr PWD-IP
+docker swarm init --advertise-addr `<PWD-IP>`
 ```
+![DockerSwarm](Images\dockerswarminit.png)
+
 
 ### 2) Create public overlay network
 ```bash
 docker network create --driver overlay public
 ```
+![DockerNetwork](Images\dockernetworkcreate.png)
+
 
 ### 3) Prepare ACME storage
 ```bash
@@ -39,6 +46,10 @@ docker stack deploy -c traefik-stack.yml traefik
 docker service ps traefik_traefik
 docker service logs traefik_traefik -f --tail=100
 ```
+![DockerServiceP](Images\dockerserviceps.png)
+![DockerServiceL](Images\dockerservicels.png)
+
+
 
 ### 5) Deploy FastAPI service
 ```bash
@@ -54,6 +65,7 @@ docker service logs monapi_api -f --tail=100
 ### **A) "port is missing"**
 Cause: A service with `traefik.enable=true` but no `loadbalancer.server.port`  
 Solution: Add a valid `traefik.http.services.<name>.loadbalancer.server.port` label or disable Traefik for that service.
+![dockerlogs](dockerlogs.png)
 
 ---
 
@@ -64,14 +76,23 @@ error msg="Unable to obtain ACME certificate for domains \"traefik.tahaidrissi.d
 
 ### **C) 404 on API domain**
 ---
+## 5. 🔍 Network Diagram
 
-## 8. ✅ Verification
+```plaintext
++-----------+         +-----------+         +----------+
+|   Client  | <-----> |  Traefik  | <-----> | FastAPI  |
++-----------+   80/443+-----------+  port 80+----------+
+                      Overlay Network: public
+```
+
+---
+## 6. ✅ Verification
 
 - Dashboard: [https://traefik.tahaidrissi.digital](https://traefik.tahaidrissi.digital)
 - API: [https://admin.tahaidrissi.digital/docs](https://admin.tahaidrissi.digital/docs) (FastAPI Swagger)
 
 ---
 
-## 9. 📌 Notes for Play with Docker
+## 7. 📌 Notes for Play with Docker
 - PWD IPs are **ephemeral** — update DNS records each session.
 - DNS propagation may take a few minutes before ACME succeeds.
