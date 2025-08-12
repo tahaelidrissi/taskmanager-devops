@@ -14,8 +14,8 @@ Set up a **FastAPI** API behind **Traefik** on a Docker Swarm cluster hosted on 
   - `admin.tahaidrissi.digital` → `<PWD_PUBLIC_IP>`
   - `traefik.tahaidrissi.digital` → `<PWD_PUBLIC_IP>`
 
-![Sequence Diagram](Images\ifconfig.me.png)
-![NamecheapScreen](Images\namecheapcofnig.png)
+![Sequence Diagram](Images/ifconfig.me.png)
+![NamecheapScreen](Images/namecheapcofnig.png)
 
 ---
 
@@ -25,14 +25,14 @@ Set up a **FastAPI** API behind **Traefik** on a Docker Swarm cluster hosted on 
 ```bash
 docker swarm init --advertise-addr `<PWD-IP>`
 ```
-![DockerSwarm](Images\dockerswarminit.png)
+![DockerSwarm](Images/dockerswarminit.png)
 
 
 ### 2) Create public overlay network
 ```bash
 docker network create --driver overlay public
 ```
-![DockerNetwork](Images\dockernetworkcreate.png)
+![DockerNetwork](Images/dockernetworkcreate.png)
 
 
 ### 3) Prepare ACME storage
@@ -46,8 +46,8 @@ docker stack deploy -c traefik-stack.yml traefik
 docker service ps traefik_traefik
 docker service logs traefik_traefik -f --tail=100
 ```
-![DockerServiceP](Images\dockerserviceps.png)
-![DockerServiceL](Images\dockerservicels.png)
+![DockerServiceP](Images/dockerserviceps.png)
+![DockerServiceL](Images/dockerservicels.png)
 
 
 
@@ -65,7 +65,7 @@ docker service logs monapi_api -f --tail=100
 ### **A) "port is missing"**
 Cause: A service with `traefik.enable=true` but no `loadbalancer.server.port`  
 Solution: Add a valid `traefik.http.services.<name>.loadbalancer.server.port` label or disable Traefik for that service.
-![dockerlogs](dockerlogs.png)
+![dockerlogs](Images/dockerlogs.png)
 
 ---
 
